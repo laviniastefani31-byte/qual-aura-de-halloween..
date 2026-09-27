@@ -163,13 +163,48 @@ function result(key){
 }
 
 async function share(key){
-  const name=DATA.results[key][0];
-  const text=`Eu sou ${name}! 🦊🎃 Qual Aura de Halloween você seria? — Além da Página`;
-  if(navigator.share){
-    try{await navigator.share({title:"Qual Aura de Halloween você seria?",text});return}catch(e){}
+  const resultData = DATA.results[key];
+  const name = resultData[0];
+  const imageUrl = new URL(`./public/assets/auras/${resultData[1]}`, window.location.href).href;
+  const quizUrl = window.location.href;
+  const text = `Eu sou ${name}! 🦊🎃\n\nDescubra qual Aura de Halloween você seria no Além da Página:`;
+
+  if (navigator.share) {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const file = new File([blob], resultData[1], { type: blob.type || "image/png" });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: `Eu sou ${name}!`,
+          text,
+          url: quizUrl,
+          files: [file]
+        });
+      } else {
+        await navigator.share({
+          title: `Eu sou ${name}!`,
+          text,
+          url: quizUrl
+        });
+      }
+
+      if (typeof gtag === "function") {
+        gtag("event", "quiz_share", { aura_result: name });
+      }
+      return;
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+    }
   }
-  try{await navigator.clipboard.writeText(text);alert("Resultado copiado! 🧡");}
-  catch(e){alert(text);}
+
+  try {
+    await navigator.clipboard.writeText(`${text}\n${quizUrl}`);
+    alert("Link do seu resultado copiado! 🧡");
+  } catch (e) {
+    alert(`${text}\n${quizUrl}`);
+  }
 }
 
 home();
