@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#5a245b">
 <title>Qual Aura de Halloween você seria? — Além da Página</title>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TRWS728T5Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-TRWS728T5Z');
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Nunito:wght@400;600;700;800&display=swap');
 *{box-sizing:border-box}
@@ -122,6 +130,12 @@ function answer(type){
   Object.keys(DATA.results).forEach(k=>{
     if((scores[k]||0)>(scores[winner]||0)) winner=k;
   });
+  // Registra cada teste concluído e qual Aura saiu.
+  if (typeof gtag === "function") {
+    gtag("event", "quiz_completed", {
+      aura_result: DATA.results[winner][0]
+    });
+  }
   result(winner);
 }
 
